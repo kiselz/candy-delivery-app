@@ -1,6 +1,7 @@
-def is_valid(courier):
+def has_all_parameters(courier):
     """
-    Check whether given courier is valid
+    Check whether given courier is has all parameters
+    and they are valid.
     :return bool
     """
     if courier.get('courier_id', None) is None:
@@ -19,22 +20,40 @@ def is_valid(courier):
         return False
 
     # Check if all parameters are valid
-    if courier['courier_id'] <= 0:
-        return False
 
-    if courier['courier_type'] not in ('foot', 'bike', 'car'):
-        return False
+    checks = (
+        is_courier_id_valid,
+        is_courier_type_valid,
+        are_regions_valid,
+    )
 
-    bad_regions = list(filter(lambda x: x <= 0, courier['regions']))
-    if len(bad_regions) > 0:
-        return False
-
-    for working_hour in courier['working_hours']:
-        splitted_time = working_hour.split('-')
-
-        if len(splitted_time) < 2:
+    for check in checks:
+        if not(check(courier)):
             return False
-        for time in splitted_time:
+
+    return True
+
+
+def is_courier_id_valid(courier):
+    return courier['courier_id'] > 0
+
+
+def is_courier_type_valid(courier):
+    return courier['courier_type'] in ('foot', 'bike', 'car')
+
+
+def are_regions_valid(courier):
+    bad_regions = list(filter(lambda x: x <= 0, courier['regions']))
+    return len(bad_regions) == 0
+
+
+def are_working_hours_valid(courier):
+    for working_hour in courier['working_hours']:
+        split_time = working_hour.split('-')
+
+        if len(split_time) < 2:
+            return False
+        for time in split_time:
             hour, minute = None, None
             try:
                 hour, minute = time.split(':')
@@ -46,5 +65,4 @@ def is_valid(courier):
                 return False
             if int(minute) >= 59 or int(minute) < 0:
                 return False
-
     return True

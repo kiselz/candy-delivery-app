@@ -4,7 +4,7 @@ from flask import jsonify
 from flask import make_response
 from flask import Blueprint
 from candy_delivery_app.database.db import create_courier
-from .validation import is_valid
+from .validation import has_all_parameters
 
 blueprint = Blueprint('couriers', __name__)
 
@@ -18,7 +18,7 @@ def load_couriers():
 
     couriers = data['data']
     for courier in couriers:
-        if is_valid(courier):
+        if has_all_parameters(courier):
             if create_courier(courier):
                 valid_couriers.append(courier)
             else:
@@ -50,4 +50,7 @@ def load_couriers():
 
 @blueprint.route('/couriers/<int:courier_id>', methods=('GET', 'PATCH',))
 def action_with_courier():
-    pass
+    if request.method == 'PATCH':
+        pass
+    elif request.method == 'GET':
+        pass
