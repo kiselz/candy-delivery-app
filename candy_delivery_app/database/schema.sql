@@ -1,7 +1,11 @@
 DROP TABLE IF EXISTS courier_type;
 DROP TABLE IF EXISTS courier;
-DROP TABLE IF EXISTS regions;
-DROP TABLE IF EXISTS working_hours;
+DROP TABLE IF EXISTS couriers_regions;
+DROP TABLE IF EXISTS couriers_working_hours;
+DROP TABLE IF EXISTS orders;
+DROP TABLE IF EXISTS orders_regions;
+DROP TABLE IF EXISTS orders_delivery_hours;
+DROP TABLE IF EXISTS couriers_with_orders;
 
 CREATE TABLE courier_type (
     id INTEGER PRIMARY KEY,
@@ -15,13 +19,13 @@ VALUES
     (3, 'car');
 
 
-CREATE TABLE regions (
+CREATE TABLE couriers_regions (
     courier_id INTEGER,
     region INTEGER NOT NULL,
     CONSTRAINT fk_courier FOREIGN KEY (courier_id) REFERENCES courier (id)
 );
 
-CREATE TABLE working_hours (
+CREATE TABLE couriers_working_hours (
     courier_id INTEGER,
     work_start TIME NOT NULL,
     work_end TIME NOT NULL
@@ -33,6 +37,30 @@ CREATE TABLE courier (
     rating FLOAT(2, 1) DEFAULT 0.0 NOT NULL,
     earnings INTEGER DEFAULT 0 NOT NULL,
     CONSTRAINT fk_courier_type FOREIGN kEY (courier_type_id) REFERENCES courier_type (id),
-    CONSTRAINT fk_regions FOREIGN KEY (id) REFERENCES regions (courier_id),
-    CONSTRAINT fk_working_hours FOREIGN KEY (id) REFERENCES working_hours (courier_id)
+    CONSTRAINT fk_couriers_regions FOREIGN KEY (id) REFERENCES couriers_regions (courier_id),
+    CONSTRAINT fk_working_hours FOREIGN KEY (id) REFERENCES couriers_working_hours (courier_id)
+);
+
+CREATE TABLE orders_regions (
+    order_id INTEGER,
+    region INTEGER NOT NULL,
+    CONSTRAINT fk_order FOREIGN KEY (order_id) REFERENCES orders (id)
+);
+
+CREATE TABLE orders_delivery_hours (
+    order_id INTEGER,
+    delivery_start TIME NOT NULL,
+    delivery_end TIME NOT NULL
+);
+
+CREATE TABLE orders (
+    id INTEGER PRIMARY KEY,
+    weight FLOAT NOT NULL,
+    is_assigned BOOL DEFAULT 0 NOT NULL,
+    CONSTRAINT fk_delivery_hours FOREIGN KEY (id) REFERENCES orders_delivery_hours (order_id)
+);
+
+CREATE TABLE couriers_with_orders (
+    courier_id INTEGER NOT NULL,
+    order_id INTEGER NOT NULL
 );
