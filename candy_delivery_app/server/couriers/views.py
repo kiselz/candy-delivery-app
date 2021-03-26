@@ -32,7 +32,7 @@ def load_couriers():
                         [{'id': courier['courier_id']}
                          for courier in bad_couriers]
                 }
-            }, 400)
+            }), 400
         )
     else:
         return make_response(
@@ -40,7 +40,7 @@ def load_couriers():
                 'couriers':
                     [{'id': courier['courier_id']}
                      for courier in valid_couriers]
-            })
+            }), 201
         )
 
 
