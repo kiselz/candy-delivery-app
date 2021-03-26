@@ -27,8 +27,8 @@ CREATE TABLE couriers_regions (
 
 CREATE TABLE couriers_working_hours (
     courier_id INTEGER,
-    work_start TIME NOT NULL,
-    work_end TIME NOT NULL
+    work_start VARCHAR(5) NOT NULL,
+    work_end VARCHAR(5) NOT NULL
 );
 
 CREATE TABLE courier (
