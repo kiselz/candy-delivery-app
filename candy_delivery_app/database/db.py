@@ -68,9 +68,11 @@ def update(table_name, unique_name, unique_value, **kwargs):
 
     db = get_db()
     cur = db.execute(
-        'UPDATE {table_name} SET {kwargs} WHERE {unique_name} = {unique_value}'.format(
+        'UPDATE {table_name} SET {kwargs} '
+        'WHERE {unique_name} = {unique_value}'.format(
             table_name=table_name,
-            kwargs=','.join(['{} = {}'.format(key, value) for key, value in kwargs.items()]),
+            kwargs=','.join(['{} = {}'.format(key, value)
+                             for key, value in kwargs.items()]),
             unique_name=unique_name,
             unique_value=unique_value
         )
