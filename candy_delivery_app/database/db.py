@@ -79,7 +79,6 @@ def create_courier(courier):
         # args = (courier_id, time(work_start), time(work_end))
 
         work_start, work_end = working_hour.split('-')
-        print(work_start, work_end)
         args = (courier['courier_id'],
                 '"{}"'.format(work_start),
                 '"{}"'.format(work_end),
