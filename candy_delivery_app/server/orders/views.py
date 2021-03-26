@@ -1,5 +1,4 @@
 """Orders views"""
-from flask import request
 from flask import Blueprint
 
 
