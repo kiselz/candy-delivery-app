@@ -32,7 +32,7 @@ CREATE TABLE courier (
     courier_type_id INTEGER NOT NULL,
     rating FLOAT(2, 1) DEFAULT 0.0 NOT NULL,
     earnings INTEGER DEFAULT 0 NOT NULL,
-  	CONSTRAINT fk_courier_type FOREIGN kEY (courier_type_id) REFERENCES courier_type (id),
+    CONSTRAINT fk_courier_type FOREIGN kEY (courier_type_id) REFERENCES courier_type (id),
     CONSTRAINT fk_regions FOREIGN KEY (id) REFERENCES regions (courier_id),
     CONSTRAINT fk_working_hours FOREIGN KEY (id) REFERENCES working_hours (courier_id)
 );
