@@ -156,8 +156,9 @@ def create_courier(courier):
     """
 
     if row_exists('courier', 'id', courier['courier_id']):
-        update_courier(courier)
-        return
+        # I guess the server should response validation_error
+        # update_courier(courier)
+        return False
 
     # Create a new row in the 'courier' table
     # args = (courier_id, courier_type_id, rating, earnings)
@@ -184,3 +185,5 @@ def create_courier(courier):
                 '"{}"'.format(work_end),
                 )
         insert('couriers_working_hours', *args)
+
+    return True

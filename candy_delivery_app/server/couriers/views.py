@@ -19,8 +19,12 @@ def load_couriers():
     couriers = data['data']
     for courier in couriers:
         if is_valid(courier):
-            create_courier(courier)
-            valid_couriers.append(courier)
+            if create_courier(courier):
+                valid_couriers.append(courier)
+            else:
+                # This courier is already in the table
+                # There is another handler to update it
+                bad_couriers.append(courier)
         else:
             bad_couriers.append(courier)
 
