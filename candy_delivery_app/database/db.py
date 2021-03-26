@@ -23,7 +23,7 @@ def init_db():
 
 def insert(table_name, *args):
     """
-    Insert into the table a new row all required properties.
+    Insert into the table a new row with all required properties.
     Length of args should be equal to the column count.
     """
 
