@@ -14,6 +14,7 @@ def get_db():
 
 def init_db():
     db = get_db()
-    with current_app.open_resource(current_app.config['DB_SCHEMA_PATH']) as file:
+    with current_app.open_resource(
+            current_app.config['DB_SCHEMA_PATH']) as file:
         print(os.curdir)
         db.executescript(file.read().decode('utf-8'))

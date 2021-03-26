@@ -1,4 +1,4 @@
-[tool.poetry]dev
+[tool.poetry]
 name = "candy-delivery-app"
 version = "0.1.0"
 description = ""
