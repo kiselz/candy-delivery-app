@@ -4,13 +4,10 @@ def has_all_parameters(courier):
     and they are valid.
     :return bool
     """
-    if courier.get('courier_id', None) is None:
+    if courier.get('id', None) is None:
         return False
 
-    if courier.get('courier_type', None) is None:
-        return False
-
-    if courier.get('regions', None) is None:
+    if courier.get('courier_type_id', None) is None:
         return False
 
     if courier.get('regions', None) is None:
@@ -28,18 +25,28 @@ def has_all_parameters(courier):
     )
 
     for check in checks:
-        if not(check(courier)):
+        if not (check(courier)):
             return False
 
     return True
 
 
+def has_bad_property(dictionary):
+    for key in dictionary:
+        if key not in \
+                ('id', 'courier_type_id', 'rating',
+                 'regions', 'working_hours', 'earnings',
+                 'courier_id',):
+            return True
+    return False
+
+
 def is_courier_id_valid(courier):
-    return courier['courier_id'] > 0
+    return courier['id'] > 0
 
 
 def is_courier_type_valid(courier):
-    return courier['courier_type'] in ('foot', 'bike', 'car')
+    return courier['courier_type_id'] in (1, 2, 3)
 
 
 def are_regions_valid(courier):
