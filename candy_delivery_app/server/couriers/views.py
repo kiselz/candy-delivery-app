@@ -66,6 +66,7 @@ def action_with_courier(courier_id):
                     {}
                 )
             ), 400
+
         courier.update(properties_to_update)
         db.update_courier(courier)
 

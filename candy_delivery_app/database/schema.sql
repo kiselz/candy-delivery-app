@@ -57,5 +57,6 @@ CREATE TABLE orders (
 
 CREATE TABLE couriers_with_orders (
     courier_id INTEGER NOT NULL,
-    order_id INTEGER NOT NULL
+    order_id INTEGER NOT NULL,
+    is_completed BOOL DEFAULT 0 NOT NULL
 );

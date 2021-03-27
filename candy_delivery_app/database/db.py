@@ -92,30 +92,25 @@ def delete(table_name, column_name, column_value):
     cur.close()
 
 
-def get_courier_type_id(courier_type):
-    """
-    Get courier type id based on courier type
-    """
-    db = get_db()
-    cur = db.execute(
-        'SELECT id FROM courier_type WHERE type=?', (courier_type,)
-    )
-    courier_type_id = cur.fetchone()[0]
-    cur.close()
-    return courier_type_id
-
-
 def get_courier_type(courier_type_id):
     """
     Get courier type based on courirer_type_id
     """
-    db = get_db()
-    cur = db.execute(
-        'SELECT type FROM courier_type WHERE id=?', (courier_type_id,)
-    )
-    courier_type = cur.fetchone()[0]
-    cur.close()
-    return courier_type
+    return get('courier_type', 'id', courier_type_id)[0]['type']
+
+
+def get_courier_type_id(courier_type):
+    """
+    Get courier type id based on courier type
+    """
+    return get('courier_type', 'type', courier_type)[0]['id']
+
+
+def get_courier_type_weight(courier_type_id):
+    """
+    Get courier type weight based on courier type id
+    """
+    return get('courier_type', 'id', courier_type_id)[0]['weight']
 
 
 def update_courier(courier):
@@ -208,7 +203,7 @@ def create_order(order):
     args = (order['order_id'],
             order['weight'],
             order['region'],
-            False,
+            0,
             )
     insert('orders', *args)
 
@@ -229,13 +224,13 @@ def create_order(order):
 def get(table_name, column_name, column_value):
     """
     Get row(s) in the table by column name and its value
-    :return dict
+    :return list
     """
 
     db = get_db()
     cur = db.execute(
         'SELECT * FROM {table_name} '
-        'WHERE {column_name} = {column_value}'.format(
+        'WHERE {column_name} = "{column_value}"'.format(
             table_name=table_name,
             column_name=column_name,
             column_value=column_value
@@ -252,24 +247,109 @@ def get(table_name, column_name, column_value):
     return array
 
 
+def get_order(order_id):
+    """
+    Get order by order_id
+    """
+
+    order = get(
+        table_name='orders',
+        column_name='order_id',
+        column_value=order_id)
+
+    if len(order) != 0:
+        delivery_hours = get(
+            table_name='orders_delivery_hours',
+            column_name='order_id',
+            column_value=order[0]['order_id']
+        )
+
+        order[0]['delivery_hours'] = []
+        for delivery_hour in delivery_hours:
+            order[0]['delivery_hours'].append(
+                '{}-{}'.format(
+                    delivery_hour['delivery_start'],
+                    delivery_hour['delivery_end'],
+                )
+            )
+        return order[0]
+    else:
+        return None
+
+
+def get_all_unassigned_orders():
+    """
+    Get all orders with column 'is_assigned' equal to False
+    """
+    orders = get(
+        table_name='orders',
+        column_name='is_assigned',
+        column_value=0)
+    for i in range(len(orders)):
+        orders[i] = get_order(orders[i]['order_id'])
+    return orders
+
+
 def get_courier(courier_id):
+    """
+    Get courier by courier_id
+    courier = {
+        'courier_id' : ...,
+        'courier_type': ...,
+        'rating': ...,
+        'earnings': ...,
+        'regions': [...],
+        'working_hours': [...],
+    }
+    """
     courier = get(
         table_name='courier',
         column_name='courier_id',
-        column_value=courier_id)[0]
+        column_value=courier_id)
     if len(courier) != 0:
         working_hours = get(
             table_name='couriers_working_hours',
             column_name='courier_id',
-            column_value=courier['courier_id']
+            column_value=courier[0]['courier_id']
         )
 
-        courier['working_hours'] = []
+        courier[0]['working_hours'] = []
         for working_hour in working_hours:
-            courier['working_hours'].append(
+            courier[0]['working_hours'].append(
                 '{}-{}'.format(
                     working_hour['work_start'],
                     working_hour['work_end'],
                 )
             )
-    return courier
+
+        courier[0]['regions'] = []
+        regions = get(
+            table_name='couriers_regions',
+            column_name='courier_id',
+            column_value=courier[0]['courier_id']
+        )
+        for region in regions:
+            courier[0]['regions'].append(region['region'])
+
+        return courier[0]
+    else:
+        return None
+
+
+def sign_order_to_courier(order, courier):
+    """
+    Add new row in the 'couriers_with_orders' table
+    Change 'is_assgned' column in the 'orders' table
+    """
+
+    args = (
+        courier['courier_id'],
+        order['order_id'],
+        False
+    )
+    insert('couriers_with_orders', *args)
+
+    properties = {
+        'is_assigned': 1
+    }
+    update('orders', 'order_id', order['order_id'], **properties)
