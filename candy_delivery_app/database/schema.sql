@@ -3,7 +3,6 @@ DROP TABLE IF EXISTS courier;
 DROP TABLE IF EXISTS couriers_regions;
 DROP TABLE IF EXISTS couriers_working_hours;
 DROP TABLE IF EXISTS orders;
-DROP TABLE IF EXISTS orders_regions;
 DROP TABLE IF EXISTS orders_delivery_hours;
 DROP TABLE IF EXISTS couriers_with_orders;
 
@@ -41,12 +40,6 @@ CREATE TABLE courier (
     CONSTRAINT fk_working_hours FOREIGN KEY (courier_id) REFERENCES couriers_working_hours (courier_id)
 );
 
-CREATE TABLE orders_regions (
-    order_id INTEGER,
-    region INTEGER NOT NULL,
-    CONSTRAINT fk_order FOREIGN KEY (order_id) REFERENCES orders (id)
-);
-
 CREATE TABLE orders_delivery_hours (
     order_id INTEGER,
     delivery_start TIME NOT NULL,
@@ -56,6 +49,7 @@ CREATE TABLE orders_delivery_hours (
 CREATE TABLE orders (
     order_id INTEGER PRIMARY KEY,
     weight FLOAT NOT NULL,
+    region INTEGER NOT NULL,
     is_assigned BOOL DEFAULT 0 NOT NULL,
     CONSTRAINT fk_delivery_hours FOREIGN KEY (order_id) REFERENCES orders_delivery_hours (order_id)
 );

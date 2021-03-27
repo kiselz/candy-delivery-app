@@ -8,4 +8,4 @@ with app.app_context():
     init_db()
 
 register_blueprints(app)
-app.run('0.0.0.0', 5001)
+app.run('0.0.0.0', 5000)

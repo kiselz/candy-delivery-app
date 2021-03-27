@@ -204,17 +204,13 @@ def create_order(order):
         return False
 
     # Create a new row in the 'orders' table
-    # args = (order_id, weight, is_assigned)
+    # args = (order_id, weight, region, is_assigned)
     args = (order['order_id'],
             order['weight'],
+            order['region'],
             False,
             )
     insert('orders', *args)
-
-    # Create new row in the 'orders_regions' table
-    # args = (order_id, region)
-    args = (order['order_id'], order['region'])
-    insert('orders_regions', *args)
 
     # Create new rows in the 'orders_delivery_hours' table
     for delivery_hour in set(order['delivery_hours']):
