@@ -28,14 +28,7 @@ def row_exists(table_name, unique_name, unique_value):
     unique_value - value of an unique column
     """
 
-    db = get_db()
-    cur = db.execute('SELECT * FROM {} WHERE {} = {}'.format(
-        table_name, unique_name, unique_value
-    ))
-    data = cur.fetchall()
-    if len(data) == 0:
-        return False
-    return True
+    return len(get(table_name, unique_name, unique_value)) != 0
 
 
 def insert(table_name, *args):
@@ -187,3 +180,33 @@ def create_courier(courier):
         insert('couriers_working_hours', *args)
 
     return True
+
+
+def get(table_name, unique_name, unique_value):
+    """
+    Get the row in the table by unique column
+    :return dict
+    """
+
+    db = get_db()
+    cur = db.execute(
+        'SELECT * FROM {table_name} '
+        'WHERE {unique_name} = {unique_value}'.format(
+            table_name=table_name,
+            unique_name=unique_name,
+            unique_value=unique_value
+        )
+    )
+    row = cur.fetchone()  # row is just tuple
+    cur.close()
+    if row:
+        dictionary = {}
+        for index, column_name in enumerate(cur.description):
+            dictionary[column_name[0]] = row[index]
+        return dictionary
+    else:
+        return {}
+
+
+def get_courier(courier_id):
+    return get('courier', 'id', courier_id)
