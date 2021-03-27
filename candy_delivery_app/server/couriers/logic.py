@@ -18,11 +18,19 @@ def to_courier_row(courier):
 
 def to_courier_request(courier):
     """
-    Reverse to to_couier_row function
+    Reverse to 'to_couier_row' function.
+    Doesn't include rating and earnings keys if they are 0.
     """
     courier.update({
         'courier_id': courier['id'],
         'courier_type': get_courier_type(courier['courier_type_id'])
     })
     del courier['id'], courier['courier_type_id']
+
+    if courier['rating'] == 0:
+        del courier['rating']
+
+    if courier['earnings'] == 0:
+        del courier['earnings']
+
     return courier
