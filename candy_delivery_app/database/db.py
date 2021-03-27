@@ -243,28 +243,20 @@ def get(table_name, unique_name, unique_value):
     )
     rows = cur.fetchall()  # row is just tuple
     cur.close()
-    if len(rows) > 1:
-        array = []
+    array = []
+    if len(rows) >= 1:
         for i in range(len(rows)):
             array.append({})
             for index, column_name in enumerate(cur.description):
                 array[i].update({column_name[0]: rows[i][index]})
-        return array
-    elif len(rows) == 1:
-        dictionary = {}
-        for index, column_name in enumerate(cur.description):
-            dictionary[column_name[0]] = rows[0][index]
-        return dictionary
-    else:
-        return {}
+    return array
 
 
 def get_courier(courier_id):
     courier = get(
         table_name='courier',
         unique_name='courier_id',
-        unique_value=courier_id
-    )
+        unique_value=courier_id)[0]
     if len(courier) != 0:
         working_hours = get(
             table_name='couriers_working_hours',
