@@ -194,6 +194,42 @@ def create_courier(courier):
     return True
 
 
+def create_order(order):
+    """
+    Create new order in the database
+    """
+
+    if row_exists('orders', 'order_id', order['order_id']):
+        # I guess the server should response validation_error
+        return False
+
+    # Create a new row in the 'orders' table
+    # args = (order_id, weight, is_assigned)
+    args = (order['order_id'],
+            order['weight'],
+            False,
+            )
+    insert('orders', *args)
+
+    # Create new row in the 'orders_regions' table
+    # args = (order_id, region)
+    args = (order['order_id'], order['region'])
+    insert('orders_regions', *args)
+
+    # Create new rows in the 'orders_delivery_hours' table
+    for delivery_hour in set(order['delivery_hours']):
+        # args = (order_id, delivery_start, delivery_end)
+
+        delivery_start, delivery_end = delivery_hour.split('-')
+        args = (order['order_id'],
+                delivery_start,
+                delivery_end,
+                )
+        insert('orders_delivery_hours', *args)
+
+    return True
+
+
 def get(table_name, unique_name, unique_value):
     """
     Get row(s) in the table by unique column
