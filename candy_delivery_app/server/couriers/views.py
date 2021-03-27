@@ -4,6 +4,7 @@ from flask import jsonify
 from flask import make_response
 from flask import Blueprint
 from candy_delivery_app.database.db import create_courier
+from candy_delivery_app.database.db import row_exists
 from .validation import has_all_parameters
 
 blueprint = Blueprint('couriers', __name__)
@@ -19,12 +20,12 @@ def load_couriers():
     couriers = data['data']
     for courier in couriers:
         if has_all_parameters(courier):
-            if create_courier(courier):
-                valid_couriers.append(courier)
-            else:
+            if row_exists('courier', 'id', courier['courier_id']):
                 # This courier is already in the table
                 # There is another handler to update it
                 bad_couriers.append(courier)
+            else:
+                valid_couriers.append(courier)
         else:
             bad_couriers.append(courier)
 
@@ -39,6 +40,9 @@ def load_couriers():
             }), 400
         )
     else:
+        for courier in valid_couriers:
+            create_courier(courier)
+
         return make_response(
             jsonify({
                 'couriers':
