@@ -32,13 +32,13 @@ CREATE TABLE couriers_working_hours (
 );
 
 CREATE TABLE courier (
-    id INTEGER PRIMARY KEY,
-    courier_type_id INTEGER NOT NULL,
+    courier_id INTEGER PRIMARY KEY,
+    courier_type VARCHAR(20) NOT NULL,
     rating FLOAT(2, 1) DEFAULT 0.0 NOT NULL,
     earnings INTEGER DEFAULT 0 NOT NULL,
-    CONSTRAINT fk_courier_type FOREIGN kEY (courier_type_id) REFERENCES courier_type (id),
-    CONSTRAINT fk_couriers_regions FOREIGN KEY (id) REFERENCES couriers_regions (courier_id),
-    CONSTRAINT fk_working_hours FOREIGN KEY (id) REFERENCES couriers_working_hours (courier_id)
+    CONSTRAINT fk_courier_type FOREIGN KEY (courier_type) REFERENCES courier_type (type),
+    CONSTRAINT fk_couriers_regions FOREIGN KEY (courier_id) REFERENCES couriers_regions (courier_id),
+    CONSTRAINT fk_working_hours FOREIGN KEY (courier_id) REFERENCES couriers_working_hours (courier_id)
 );
 
 CREATE TABLE orders_regions (

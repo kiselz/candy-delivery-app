@@ -40,12 +40,11 @@ def insert(table_name, *args):
     db = get_db()
     cur = db.execute('SELECT * FROM {}'.format(table_name))
     column_names = [description[0] for description in cur.description]
-
     cur = db.execute(
         'INSERT INTO {table_name}({column_names}) VALUES({args})'.format(
             table_name=table_name,
             column_names=','.join(column_names),
-            args=','.join(map(str, args)),
+            args=','.join(map(lambda x: '"{}"'.format(x), args)),
         ))
     db.commit()
     cur.close()
@@ -64,7 +63,7 @@ def update(table_name, unique_name, unique_value, **kwargs):
         'UPDATE {table_name} SET {kwargs} '
         'WHERE {unique_name} = {unique_value}'.format(
             table_name=table_name,
-            kwargs=','.join(['{} = {}'.format(key, value)
+            kwargs=','.join(['{} = "{}"'.format(key, value)
                              for key, value in kwargs.items()]),
             unique_name=unique_name,
             unique_value=unique_value
@@ -127,31 +126,31 @@ def update_courier(courier):
     # Update the row in the 'courier' table
     # key - property name, value - new value of the property
     properties = {
-        'id': courier['id'],
-        'courier_type_id': courier['courier_type_id'],
+        'courier_id': courier['courier_id'],
+        'courier_type': courier['courier_type'],
     }
-    update('courier', 'id', courier['id'], **properties)
+    update('courier', 'courier_id', courier['courier_id'], **properties)
 
     # Delete all rows in the 'couriers_regions' table with courier_id
-    delete('couriers_regions', 'courier_id', courier['id'])
+    delete('couriers_regions', 'courier_id', courier['courier_id'])
 
     # Create new rows in the 'couriers_regions' table
     for region in set(courier['regions']):
         # args = (courier_id, region)
-        args = (courier['id'], region,)
+        args = (courier['courier_id'], region,)
         insert('couriers_regions', *args)
 
     # Delete all rows in the 'couriers_working_hours' table with courier_id
-    delete('couriers_working_hours', 'courier_id', courier['id'])
+    delete('couriers_working_hours', 'courier_id', courier['courier_id'])
 
     # Create new rows in the 'couriers_working_hours' table
     for working_hour in set(courier['working_hours']):
         # args = (courier_id, time(work_start), time(work_end))
 
         work_start, work_end = working_hour.split('-')
-        args = (courier['id'],
-                '"{}"'.format(work_start),
-                '"{}"'.format(work_end),
+        args = (courier['courier_id'],
+                work_start,
+                work_end,
                 )
         insert('couriers_working_hours', *args)
 
@@ -161,15 +160,15 @@ def create_courier(courier):
     Create new courier in the database
     """
 
-    if row_exists('courier', 'id', courier['id']):
+    if row_exists('courier', 'courier_id', courier['courier_id']):
         # I guess the server should response validation_error
         # update_courier(courier)
         return False
 
     # Create a new row in the 'courier' table
     # args = (courier_id, courier_type_id, rating, earnings)
-    args = (courier['id'],
-            courier['courier_type_id'],
+    args = (courier['courier_id'],
+            courier['courier_type'],
             0.0,
             0,
             )
@@ -178,7 +177,7 @@ def create_courier(courier):
     # Create new rows in the 'couriers_regions' table
     for region in set(courier['regions']):
         # args = (courier_id, region)
-        args = (courier['id'], region,)
+        args = (courier['courier_id'], region,)
         insert('couriers_regions', *args)
 
     # Create new rows in the 'couriers_working_hours' table
@@ -186,9 +185,9 @@ def create_courier(courier):
         # args = (courier_id, time(work_start), time(work_end))
 
         work_start, work_end = working_hour.split('-')
-        args = (courier['id'],
-                '"{}"'.format(work_start),
-                '"{}"'.format(work_end),
+        args = (courier['courier_id'],
+                work_start,
+                work_end,
                 )
         insert('couriers_working_hours', *args)
 
@@ -231,14 +230,14 @@ def get(table_name, unique_name, unique_value):
 def get_courier(courier_id):
     courier = get(
         table_name='courier',
-        unique_name='id',
+        unique_name='courier_id',
         unique_value=courier_id
     )
     if len(courier) != 0:
         working_hours = get(
             table_name='couriers_working_hours',
             unique_name='courier_id',
-            unique_value=courier['id']
+            unique_value=courier['courier_id']
         )
 
         courier['working_hours'] = []

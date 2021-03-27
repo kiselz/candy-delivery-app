@@ -6,8 +6,6 @@ from flask import Blueprint
 import candy_delivery_app.database.db as db
 from .validation import has_all_parameters
 from .validation import has_bad_property
-from .logic import to_courier_row
-from .logic import to_courier_request
 
 blueprint = Blueprint('couriers', __name__)
 
@@ -19,10 +17,13 @@ def load_couriers():
     bad_couriers = []
     valid_couriers = []
 
-    couriers = list(map(to_courier_row, data['data']))
+    couriers = data['data']
     for courier in couriers:
         if has_all_parameters(courier):
-            if db.row_exists('courier', 'id', courier['id']):
+            if db.row_exists(
+                    table_name='courier',
+                    unique_name='courier_id',
+                    unique_value=courier['courier_id']):
                 # This courier is already in the table
                 # There is another handler to update it
                 bad_couriers.append(courier)
@@ -36,7 +37,7 @@ def load_couriers():
             jsonify({
                 'validation_error': {
                     'couriers':
-                        [{'id': courier['id']}
+                        [{'id': courier['courier_id']}
                          for courier in bad_couriers]
                 }
             }), 400
@@ -48,7 +49,7 @@ def load_couriers():
         return make_response(
             jsonify({
                 'couriers':
-                    [{'id': courier['id']}
+                    [{'id': courier['courier_id']}
                      for courier in valid_couriers]
             }), 201
         )
@@ -67,8 +68,6 @@ def action_with_courier(courier_id):
             ), 400
         courier.update(properties_to_update)
         db.update_courier(courier)
-
-        courier = to_courier_request(courier)
 
         return make_response(
             jsonify(courier), 200
