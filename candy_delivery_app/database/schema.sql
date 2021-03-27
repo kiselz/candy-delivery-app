@@ -8,14 +8,15 @@ DROP TABLE IF EXISTS couriers_with_orders;
 
 CREATE TABLE courier_type (
     id INTEGER PRIMARY KEY,
-    type VARCHAR(20) NOT NULL UNIQUE
+    type VARCHAR(20) NOT NULL UNIQUE,
+    weight INTEGER NOT NULL
 );
 
-INSERT INTO courier_type (id, type)
+INSERT INTO courier_type (id, type, weight)
 VALUES
-    (1, 'foot'),
-    (2, 'bike'),
-    (3, 'car');
+    (1, 'foot', 10),
+    (2, 'bike', 15),
+    (3, 'car', 50);
 
 
 CREATE TABLE couriers_regions (
