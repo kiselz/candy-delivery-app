@@ -21,14 +21,14 @@ def init_db():
         db.executescript(file.read().decode('utf-8'))
 
 
-def row_exists(table_name, unique_name, unique_value):
+def row_exists(table_name, column_name, column_value):
     """
     Check whether the same row already exist in the table.
-    unique_name - name of an unique column
-    unique_value - value of an unique column
+    column_name - name of a column with which row will be found
+    column_value - value of this column
     """
 
-    return len(get(table_name, unique_name, unique_value)) != 0
+    return len(get(table_name, column_name, column_value)) != 0
 
 
 def insert(table_name, *args):
@@ -50,23 +50,23 @@ def insert(table_name, *args):
     cur.close()
 
 
-def update(table_name, unique_name, unique_value, **kwargs):
+def update(table_name, column_name, column_value, **kwargs):
     """
     Update in the table already existed row
-    unique_name - name of an unique column
-    unique_value - value of an unique column
+    column_name - name of a column with which a row will be found
+    column_value - value of this column
     kwargs - properties to update
     """
 
     db = get_db()
     cur = db.execute(
         'UPDATE {table_name} SET {kwargs} '
-        'WHERE {unique_name} = {unique_value}'.format(
+        'WHERE {column_name} = {column_value}'.format(
             table_name=table_name,
             kwargs=','.join(['{} = "{}"'.format(key, value)
                              for key, value in kwargs.items()]),
-            unique_name=unique_name,
-            unique_value=unique_value
+            column_name=column_name,
+            column_value=column_value
         )
     )
     db.commit()
@@ -75,7 +75,7 @@ def update(table_name, unique_name, unique_value, **kwargs):
 
 def delete(table_name, column_name, column_value):
     """
-    Delete in the table all rows that has unique_name equal to unique value
+    Delete in the table all rows that has column_name equal to unique value
     column_name - name of an unique column
     column_value - value of an unique column
     """
@@ -226,19 +226,19 @@ def create_order(order):
     return True
 
 
-def get(table_name, unique_name, unique_value):
+def get(table_name, column_name, column_value):
     """
-    Get row(s) in the table by unique column
+    Get row(s) in the table by column name and its value
     :return dict
     """
 
     db = get_db()
     cur = db.execute(
         'SELECT * FROM {table_name} '
-        'WHERE {unique_name} = {unique_value}'.format(
+        'WHERE {column_name} = {column_value}'.format(
             table_name=table_name,
-            unique_name=unique_name,
-            unique_value=unique_value
+            column_name=column_name,
+            column_value=column_value
         )
     )
     rows = cur.fetchall()  # row is just tuple
@@ -255,13 +255,13 @@ def get(table_name, unique_name, unique_value):
 def get_courier(courier_id):
     courier = get(
         table_name='courier',
-        unique_name='courier_id',
-        unique_value=courier_id)[0]
+        column_name='courier_id',
+        column_value=courier_id)[0]
     if len(courier) != 0:
         working_hours = get(
             table_name='couriers_working_hours',
-            unique_name='courier_id',
-            unique_value=courier['courier_id']
+            column_name='courier_id',
+            column_value=courier['courier_id']
         )
 
         courier['working_hours'] = []

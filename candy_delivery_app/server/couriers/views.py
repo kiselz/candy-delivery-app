@@ -22,8 +22,8 @@ def load_couriers():
         if has_all_parameters(courier):
             if db.row_exists(
                     table_name='courier',
-                    unique_name='courier_id',
-                    unique_value=courier['courier_id']):
+                    column_name='courier_id',
+                    column_value=courier['courier_id']):
                 # This courier is already in the table
                 # There is another handler to update it
                 bad_couriers.append(courier)
