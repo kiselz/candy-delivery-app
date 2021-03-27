@@ -73,7 +73,8 @@ def assign_orders():
             suitable_orders.append(order)
 
     if len(suitable_orders) > 0:
-        assign_time = datetime.now().isoformat(timespec='seconds')
+        assign_time = datetime.now().utcnow().\
+                          isoformat('T') + 'Z'
         for order in suitable_orders:
             db.sign_order_to_courier(order, courier)
 
