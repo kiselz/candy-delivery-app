@@ -6,6 +6,7 @@ from flask import Blueprint
 import candy_delivery_app.database.db as db
 from .validation import has_all_parameters
 from .validation import has_bad_property
+from candy_delivery_app.server.orders.logic import is_order_suitable
 
 blueprint = Blueprint('couriers', __name__)
 
@@ -60,7 +61,7 @@ def action_with_courier(courier_id):
     if request.method == 'PATCH':
         properties_to_update = request.get_json()
         courier = db.get_courier(courier_id)
-        if len(courier) == 0 or has_bad_property(courier):
+        if courier is None or has_bad_property(courier):
             return make_response(
                 jsonify(
                     {}
@@ -75,6 +76,11 @@ def action_with_courier(courier_id):
 
         if courier['earnings'] == 0:
             del courier['earnings']
+
+        orders = db.get_courier_orders(courier)
+        for order in orders:
+            if not(is_order_suitable(courier, order)):
+                db.untie_order_from_courier(order, courier)
 
         return make_response(
             jsonify(courier), 200

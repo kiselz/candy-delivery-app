@@ -15,6 +15,9 @@ def is_order_suitable(courier, order):
     if order['weight'] > max_weight:
         return False
 
+    if order['region'] not in courier['regions']:
+        return False
+
     current_year = int(datetime.now().year)
     current_month = int(datetime.now().month)
     current_day = int(datetime.now().day)

@@ -345,7 +345,7 @@ def sign_order_to_courier(order, courier):
     args = (
         courier['courier_id'],
         order['order_id'],
-        False
+        0
     )
     insert('couriers_with_orders', *args)
 
@@ -353,3 +353,31 @@ def sign_order_to_courier(order, courier):
         'is_assigned': 1
     }
     update('orders', 'order_id', order['order_id'], **properties)
+
+
+def untie_order_from_courier(order, courier):
+    """
+    Delete row in the 'couriers_with_orders' table
+    Change 'is_assigned' column to 0 in the 'orders' table
+    """
+
+    delete('couriers_with_orders', 'order_id', order['order_id'])
+    properties = {
+        'is_assigned': 0
+    }
+    update('orders', 'order_id', order['order_id'], **properties)
+
+
+def get_courier_orders(courier):
+    """
+    Get all orders assigned to the given courier
+    :return list
+    """
+
+    rows = get('couriers_with_orders', 'courier_id', courier['courier_id'])
+    orders = []
+    for row in rows:
+        if not(row['is_completed']) and \
+                row['courier_id'] == courier['courier_id']:
+            orders.append(get_order(row['order_id']))
+    return orders
