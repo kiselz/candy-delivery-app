@@ -54,10 +54,10 @@ CREATE TABLE orders_delivery_hours (
 );
 
 CREATE TABLE orders (
-    id INTEGER PRIMARY KEY,
+    order_id INTEGER PRIMARY KEY,
     weight FLOAT NOT NULL,
     is_assigned BOOL DEFAULT 0 NOT NULL,
-    CONSTRAINT fk_delivery_hours FOREIGN KEY (id) REFERENCES orders_delivery_hours (order_id)
+    CONSTRAINT fk_delivery_hours FOREIGN KEY (order_id) REFERENCES orders_delivery_hours (order_id)
 );
 
 CREATE TABLE couriers_with_orders (
