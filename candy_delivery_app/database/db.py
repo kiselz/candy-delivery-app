@@ -106,6 +106,19 @@ def get_courier_type_id(courier_type):
     return courier_type_id
 
 
+def get_courier_type(courier_type_id):
+    """
+    Get courier type based on courirer_type_id
+    """
+    db = get_db()
+    cur = db.execute(
+        'SELECT type FROM courier_type WHERE id=?', (courier_type_id,)
+    )
+    courier_type = cur.fetchone()[0]
+    cur.close()
+    return courier_type
+
+
 def update_courier(courier):
     """
     Update already existed courier in the database
@@ -114,29 +127,29 @@ def update_courier(courier):
     # Update the row in the 'courier' table
     # key - property name, value - new value of the property
     properties = {
-        'id': courier['courier_id'],
-        'courier_type_id': get_courier_type_id(courier['courier_type']),
+        'id': courier['id'],
+        'courier_type_id': courier['courier_type_id'],
     }
-    update('courier', 'id', courier['courier_id'], **properties)
+    update('courier', 'id', courier['id'], **properties)
 
     # Delete all rows in the 'couriers_regions' table with courier_id
-    delete('couriers_regions', 'courier_id', courier['courier_id'])
+    delete('couriers_regions', 'courier_id', courier['id'])
 
     # Create new rows in the 'couriers_regions' table
     for region in set(courier['regions']):
         # args = (courier_id, region)
-        args = (courier['courier_id'], region,)
+        args = (courier['id'], region,)
         insert('couriers_regions', *args)
 
     # Delete all rows in the 'couriers_working_hours' table with courier_id
-    delete('couriers_working_hours', 'courier_id', courier['courier_id'])
+    delete('couriers_working_hours', 'courier_id', courier['id'])
 
     # Create new rows in the 'couriers_working_hours' table
     for working_hour in set(courier['working_hours']):
         # args = (courier_id, time(work_start), time(work_end))
 
         work_start, work_end = working_hour.split('-')
-        args = (courier['courier_id'],
+        args = (courier['id'],
                 '"{}"'.format(work_start),
                 '"{}"'.format(work_end),
                 )
@@ -148,15 +161,15 @@ def create_courier(courier):
     Create new courier in the database
     """
 
-    if row_exists('courier', 'id', courier['courier_id']):
+    if row_exists('courier', 'id', courier['id']):
         # I guess the server should response validation_error
         # update_courier(courier)
         return False
 
     # Create a new row in the 'courier' table
     # args = (courier_id, courier_type_id, rating, earnings)
-    args = (courier['courier_id'],
-            get_courier_type_id(courier['courier_type']),
+    args = (courier['id'],
+            courier['courier_type_id'],
             0.0,
             0,
             )
@@ -165,7 +178,7 @@ def create_courier(courier):
     # Create new rows in the 'couriers_regions' table
     for region in set(courier['regions']):
         # args = (courier_id, region)
-        args = (courier['courier_id'], region,)
+        args = (courier['id'], region,)
         insert('couriers_regions', *args)
 
     # Create new rows in the 'couriers_working_hours' table
@@ -173,7 +186,7 @@ def create_courier(courier):
         # args = (courier_id, time(work_start), time(work_end))
 
         work_start, work_end = working_hour.split('-')
-        args = (courier['courier_id'],
+        args = (courier['id'],
                 '"{}"'.format(work_start),
                 '"{}"'.format(work_end),
                 )
@@ -184,7 +197,7 @@ def create_courier(courier):
 
 def get(table_name, unique_name, unique_value):
     """
-    Get the row in the table by unique column
+    Get row(s) in the table by unique column
     :return dict
     """
 
@@ -197,16 +210,43 @@ def get(table_name, unique_name, unique_value):
             unique_value=unique_value
         )
     )
-    row = cur.fetchone()  # row is just tuple
+    rows = cur.fetchall()  # row is just tuple
     cur.close()
-    if row:
+    if len(rows) > 1:
+        array = []
+        for i in range(len(rows)):
+            array.append({})
+            for index, column_name in enumerate(cur.description):
+                array[i].update({column_name[0]: rows[i][index]})
+        return array
+    elif len(rows) == 1:
         dictionary = {}
         for index, column_name in enumerate(cur.description):
-            dictionary[column_name[0]] = row[index]
+            dictionary[column_name[0]] = rows[0][index]
         return dictionary
     else:
         return {}
 
 
 def get_courier(courier_id):
-    return get('courier', 'id', courier_id)
+    courier = get(
+        table_name='courier',
+        unique_name='id',
+        unique_value=courier_id
+    )
+    if len(courier) != 0:
+        working_hours = get(
+            table_name='couriers_working_hours',
+            unique_name='courier_id',
+            unique_value=courier['id']
+        )
+
+        courier['working_hours'] = []
+        for working_hour in working_hours:
+            courier['working_hours'].append(
+                '{}-{}'.format(
+                    working_hour['work_start'],
+                    working_hour['work_end'],
+                )
+            )
+    return courier
