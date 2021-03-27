@@ -69,6 +69,12 @@ def action_with_courier(courier_id):
         courier.update(properties_to_update)
         db.update_courier(courier)
 
+        if courier['rating'] == 0:
+            del courier['rating']
+
+        if courier['earnings'] == 0:
+            del courier['earnings']
+
         return make_response(
             jsonify(courier), 200
         )
