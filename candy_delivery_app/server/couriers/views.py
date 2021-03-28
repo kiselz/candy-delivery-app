@@ -18,6 +18,11 @@ def load_couriers():
     bad_couriers = []
     valid_couriers = []
 
+    if data.get('data', None) is None:
+        return make_response(
+            jsonify({}), 400
+        )
+
     couriers = data['data']
     for courier in couriers:
         if has_all_parameters(courier):
@@ -39,7 +44,8 @@ def load_couriers():
                 'validation_error': {
                     'couriers':
                         [{'id': courier['courier_id']}
-                         for courier in bad_couriers]
+                         for courier in bad_couriers
+                         if courier.get('courier_id', None) is not None]
                 }
             }), 400
         )
