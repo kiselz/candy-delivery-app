@@ -19,6 +19,11 @@ def load_orders():
     bad_orders = []
     valid_orders = []
 
+    if data.get('data', None) is None:
+        return make_response(
+            jsonify({}), 400
+        )
+
     orders = data['data']
     for order in orders:
         if has_all_parameters(order):
@@ -26,7 +31,7 @@ def load_orders():
                     table_name='orders',
                     column_name='order_id',
                     column_value=order['order_id']):
-                # This courier is already in the table
+                # This order is already in the table
                 # There is another handler to update it
                 bad_orders.append(order)
             else:
@@ -60,6 +65,9 @@ def load_orders():
 @blueprint.route('/orders/assign', methods=('POST',))
 def assign_orders():
     data = request.get_json()
+
+    if data.get('courier_id', None) is None:
+        return make_response(jsonify({}), 400)
 
     courier = db.get_courier(data['courier_id'])
     if courier is None:
@@ -97,6 +105,12 @@ def assign_orders():
 @blueprint.route('/orders/complete', methods=('POST',))
 def complete_order():
     data = request.get_json()
+
+    if data.get('courier_id', None) is None:
+        return make_response(jsonify({}), 400)
+
+    if data.get('order_id', None) is None:
+        return make_response(jsonify({}), 400)
 
     courier = db.get_courier(data['courier_id'])
     order = db.get_order(data['order_id'])
