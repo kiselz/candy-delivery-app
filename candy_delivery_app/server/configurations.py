@@ -12,6 +12,22 @@ class Config:
 
 
 class DevConfig(Config):
+    """Development configuration"""
     DEBUG = True
     DB_NAME = 'dev.db'
+    DB_PATH = os.path.join(Config.PROJECT_ROOT, DB_NAME)
+
+
+class ProdConfig(Config):
+    """Production configuration"""
+    ENV = 'production'
+    DB_NAME = 'really_serious_name.db'
+    DB_PATH = os.path.join(Config.PROJECT_ROOT, DB_NAME)
+
+
+class TestConfig(Config):
+    """Test configuration"""
+    TESTING = True
+    DEBUG = True
+    DB_NAME = 'test.db'
     DB_PATH = os.path.join(Config.PROJECT_ROOT, DB_NAME)
