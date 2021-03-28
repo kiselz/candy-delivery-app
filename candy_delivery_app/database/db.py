@@ -4,6 +4,10 @@ from flask import g
 
 
 def get_db():
+    """
+    Get app's database
+    """
+
     if 'db' not in g:
         g.db = sqlite3.connect(
             current_app.config['DB_PATH']
@@ -98,21 +102,30 @@ def get_courier_type(courier_type_id):
     """
     Get courier type based on courirer_type_id
     """
-    return get('courier_type', 'id', courier_type_id)[0]['type']
+    return get(
+        table_name='courier_type',
+        column_name='id',
+        column_value=courier_type_id)[0]['type']
 
 
 def get_courier_type_id(courier_type):
     """
     Get courier type id based on courier type
     """
-    return get('courier_type', 'type', courier_type)[0]['id']
+    return get(
+        table_name='courier_type',
+        column_name='type',
+        column_value=courier_type)[0]['id']
 
 
 def get_courier_type_weight(courier_type_id):
     """
     Get courier type weight based on courier type id
     """
-    return get('courier_type', 'id', courier_type_id)[0]['weight']
+    return get(
+        table_name='courier_type',
+        column_name='id',
+        column_value=courier_type_id)[0]['weight']
 
 
 def update_courier(courier):
@@ -126,19 +139,30 @@ def update_courier(courier):
         'courier_id': courier['courier_id'],
         'courier_type': courier['courier_type'],
     }
-    update('courier', 'courier_id', courier['courier_id'], **properties)
+    update(
+        table_name='courier',
+        column_name='courier_id',
+        column_value=courier['courier_id'],
+        **properties)
 
     # Delete all rows in the 'couriers_regions' table with courier_id
-    delete('couriers_regions', 'courier_id', courier['courier_id'])
+    delete(
+        table_name='couriers_regions',
+        column_name='courier_id',
+        column_value=courier['courier_id'])
 
     # Create new rows in the 'couriers_regions' table
     for region in set(courier['regions']):
         # args = (courier_id, region)
         args = (courier['courier_id'], region,)
-        insert('couriers_regions', *args)
+        insert(
+            table_name='couriers_regions', *args)
 
     # Delete all rows in the 'couriers_working_hours' table with courier_id
-    delete('couriers_working_hours', 'courier_id', courier['courier_id'])
+    delete(
+        table_name='couriers_working_hours',
+        column_name='courier_id',
+        column_value=courier['courier_id'])
 
     # Create new rows in the 'couriers_working_hours' table
     for working_hour in set(courier['working_hours']):
@@ -149,7 +173,8 @@ def update_courier(courier):
                 work_start,
                 work_end,
                 )
-        insert('couriers_working_hours', *args)
+        insert(
+            table_name='couriers_working_hours', *args)
 
 
 def create_courier(courier):
@@ -157,7 +182,10 @@ def create_courier(courier):
     Create new courier in the database
     """
 
-    if row_exists('courier', 'courier_id', courier['courier_id']):
+    if row_exists(
+            table_name='courier',
+            column_name='courier_id',
+            column_value=courier['courier_id']):
         # I guess the server should response validation_error
         # update_courier(courier)
         return False
@@ -196,7 +224,10 @@ def create_order(order):
     Create new order in the database
     """
 
-    if row_exists('orders', 'order_id', order['order_id']):
+    if row_exists(
+            table_name='orders',
+            column_name='order_id',
+            column_value=order['order_id']):
         # I guess the server should response validation_error
         return False
 
@@ -379,7 +410,11 @@ def sign_order_to_courier(order, courier, now):
     properties = {
         'is_assigned': 1
     }
-    update('orders', 'order_id', order['order_id'], **properties)
+    update(
+        table_name='orders',
+        column_name='order_id',
+        column_value=order['order_id'],
+        **properties)
 
 
 def untie_order_from_courier(order, courier):
@@ -392,7 +427,10 @@ def untie_order_from_courier(order, courier):
     properties = {
         'is_assigned': 0
     }
-    update('orders', 'order_id', order['order_id'], **properties)
+    update(table_name='orders',
+           column_name='order_id',
+           column_value=order['order_id'],
+           **properties)
 
 
 def get_courier_orders(courier):
@@ -401,7 +439,10 @@ def get_courier_orders(courier):
     :return list
     """
 
-    rows = get('couriers_with_orders', 'courier_id', courier['courier_id'])
+    rows = get(
+        table_name='couriers_with_orders',
+        column_name='courier_id',
+        column_value=courier['courier_id'])
     orders = []
     for row in rows:
         if row['courier_id'] == courier['courier_id']:
@@ -413,7 +454,10 @@ def is_order_completed(order):
     """
     Check whether given order is already completed
     """
-    row = get('couriers_with_orders', 'order_id', order['order_id'])[0]
+    row = get(
+        table_name='couriers_with_orders',
+        column_name='order_id',
+        column_value=order['order_id'])[0]
     return row['is_completed']
 
 
@@ -436,5 +480,8 @@ def complete_order(order, complete_time):
         'is_completed': 1,
         'completed_time': complete_time
     }
-    update('couriers_with_orders', 'order_id', order['order_id'],
-           **properties)
+    update(
+        table_name='couriers_with_orders',
+        column_name='order_id',
+        column_value=order['order_id'],
+        **properties)
