@@ -81,7 +81,15 @@ def assign_orders():
             suitable_orders.append(order)
 
     if len(suitable_orders) > 0:
-        assign_time = datetime.now().utcnow().\
+        assign_time = None
+        if db.row_exists(
+                table_name='couriers_assigned_time',
+                column_name='courier_id',
+                column_value=courier['courier_id']
+                        ):
+            assign_time = db.get_courier_assigned_time(courier)
+        else:
+            assign_time = datetime.now().utcnow().\
                           isoformat('T') + 'Z'
         for order in suitable_orders:
             db.sign_order_to_courier(order, courier, assign_time)
