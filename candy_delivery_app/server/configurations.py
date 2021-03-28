@@ -13,6 +13,7 @@ class Config:
 
 class DevConfig(Config):
     """Development configuration"""
+    ENV = 'development'
     DEBUG = True
     DB_NAME = 'dev.db'
     DB_PATH = os.path.join(Config.PROJECT_ROOT, DB_NAME)

@@ -9,3 +9,6 @@ run-prod:
 
 linter:
 	poetry run flake8 candy_delivery_app
+
+test:
+	poetry run pytest
