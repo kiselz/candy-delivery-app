@@ -120,11 +120,18 @@ def complete_order():
         return make_response(jsonify({}), 400)
 
     try:
-        datetime.strptime(
+        complete_time = datetime.strptime(
             data['complete_time'],
             '%Y-%m-%dT%H:%M:%S.%fZ'
         )
+        assigned_time = datetime.strptime(
+            db.get_courier_assigned_time(courier),
+            '%Y-%m-%dT%H:%M:%S.%fZ')
+        if complete_time < assigned_time:
+            raise ValueError
+
     except ValueError:
+        # Complete time is in wrong format or earlier than assigned time
         return make_response(jsonify({}), 400)
 
     db.complete_order(order, data['complete_time'])
