@@ -5,6 +5,10 @@ from ..server import orders
 
 
 def create_app(config=DevConfig):
+    """
+    An application factory
+    http://flask.pocoo.org/docs/patterns/appfactories/
+    """
     app = Flask(__name__)
     app.config.from_object(config)
     return app
