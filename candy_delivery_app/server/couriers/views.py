@@ -79,7 +79,8 @@ def action_with_courier(courier_id):
 
         orders = db.get_courier_orders(courier)
         for order in orders:
-            if not(is_order_suitable(courier, order)):
+            if not(is_order_suitable(courier, order)) and \
+                    not(db.is_order_completed(order)):
                 db.untie_order_from_courier(order, courier)
 
         return make_response(

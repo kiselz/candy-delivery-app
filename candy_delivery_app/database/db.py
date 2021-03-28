@@ -404,7 +404,37 @@ def get_courier_orders(courier):
     rows = get('couriers_with_orders', 'courier_id', courier['courier_id'])
     orders = []
     for row in rows:
-        if not(row['is_completed']) and \
-                row['courier_id'] == courier['courier_id']:
+        if row['courier_id'] == courier['courier_id']:
             orders.append(get_order(row['order_id']))
     return orders
+
+
+def is_order_completed(order):
+    """
+    Check whether given order is already completed
+    """
+    row = get('couriers_with_orders', 'order_id', order['order_id'])[0]
+    return row['is_completed']
+
+
+def has_courier_order(courier, order):
+    """
+    Check whether courier has the order
+    """
+
+    if order in get_courier_orders(courier):
+        return True
+    return False
+
+
+def complete_order(order, complete_time):
+    """
+    Set complete time in 'couriers_with_orders' table
+    """
+
+    properties = {
+        'is_completed': 1,
+        'completed_time': complete_time
+    }
+    update('couriers_with_orders', 'order_id', order['order_id'],
+           **properties)

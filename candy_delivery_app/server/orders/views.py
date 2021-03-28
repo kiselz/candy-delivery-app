@@ -96,4 +96,26 @@ def assign_orders():
 
 @blueprint.route('/orders/complete', methods=('POST',))
 def complete_order():
-    pass
+    data = request.get_json()
+
+    courier = db.get_courier(data['courier_id'])
+    order = db.get_order(data['order_id'])
+
+    if courier is None or order is None or \
+            order not in db.get_courier_orders(courier):
+        return make_response(jsonify({}), 400)
+
+    try:
+        datetime.strptime(
+            data['complete_time'],
+            '%Y-%m-%dT%H:%M:%S.%fZ'
+        )
+    except ValueError:
+        return make_response(jsonify({}), 400)
+
+    db.complete_order(order, data['complete_time'])
+    return make_response(
+        jsonify({
+            'order_id': order['order_id']
+        }), 200
+    )
