@@ -155,8 +155,7 @@ def update_courier(courier):
     for region in set(courier['regions']):
         # args = (courier_id, region)
         args = (courier['courier_id'], region,)
-        insert(
-            table_name='couriers_regions', *args)
+        insert('couriers_regions', *args)
 
     # Delete all rows in the 'couriers_working_hours' table with courier_id
     delete(
@@ -173,8 +172,7 @@ def update_courier(courier):
                 work_start,
                 work_end,
                 )
-        insert(
-            table_name='couriers_working_hours', *args)
+        insert('couriers_working_hours', *args)
 
 
 def create_courier(courier):
