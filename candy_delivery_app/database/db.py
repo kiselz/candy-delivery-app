@@ -44,7 +44,9 @@ def insert(table_name, *args):
         'INSERT INTO {table_name}({column_names}) VALUES({args})'.format(
             table_name=table_name,
             column_names=','.join(column_names),
-            args=','.join(map(lambda x: '"{}"'.format(x), args)),
+            args=','.join(map(lambda x:
+                              'NULL' if x is None else '"{}"'.format(x),
+                              args)),
         ))
     db.commit()
     cur.close()
@@ -336,16 +338,41 @@ def get_courier(courier_id):
         return None
 
 
-def sign_order_to_courier(order, courier):
+def get_courier_assigned_time(courier):
+    """
+    Get courier assigned time from 'couriers_assigned_time' table
+    """
+    return get(
+        table_name='couriers_assigned_time',
+        column_name='courier_id',
+        column_value=courier['courier_id'])[0]['assigned_time']
+
+
+def sign_order_to_courier(order, courier, now):
     """
     Add new row in the 'couriers_with_orders' table
     Change 'is_assgned' column in the 'orders' table
+    Create new assigned time for courier if it wasn't created
     """
+
+    if not(row_exists(
+            table_name='couriers_assigned_time',
+            column_name='courier_id',
+            column_value=courier['courier_id'])):
+        args = (
+            courier['courier_id'],
+            now,
+        )
+        insert('couriers_assigned_time', *args)
+
+    assigned_time = get_courier_assigned_time(courier)
 
     args = (
         courier['courier_id'],
         order['order_id'],
-        0
+        assigned_time,
+        0,
+        None,
     )
     insert('couriers_with_orders', *args)
 

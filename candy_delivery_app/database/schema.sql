@@ -5,6 +5,7 @@ DROP TABLE IF EXISTS couriers_working_hours;
 DROP TABLE IF EXISTS orders;
 DROP TABLE IF EXISTS orders_delivery_hours;
 DROP TABLE IF EXISTS couriers_with_orders;
+DROP TABLE IF EXISTS couriers_assigned_time;
 
 CREATE TABLE courier_type (
     id INTEGER PRIMARY KEY,
@@ -58,5 +59,12 @@ CREATE TABLE orders (
 CREATE TABLE couriers_with_orders (
     courier_id INTEGER NOT NULL,
     order_id INTEGER NOT NULL,
-    is_completed BOOL DEFAULT 0 NOT NULL
+    assigned_time VARCHAR(255) NOT NULL,
+    is_completed BOOL DEFAULT 0 NOT NULL,
+    completed_time VARCHAR(255)
+);
+
+CREATE TABLE couriers_assigned_time (
+    courier_id INTEGER PRIMARY KEY,
+    assigned_time VARCHAR(255) NOT NULL
 );

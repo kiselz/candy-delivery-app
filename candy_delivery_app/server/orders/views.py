@@ -76,7 +76,7 @@ def assign_orders():
         assign_time = datetime.now().utcnow().\
                           isoformat('T') + 'Z'
         for order in suitable_orders:
-            db.sign_order_to_courier(order, courier)
+            db.sign_order_to_courier(order, courier, assign_time)
 
         return make_response(
             jsonify({
