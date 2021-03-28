@@ -74,14 +74,15 @@ def action_with_courier(courier_id):
                 )
             ), 400
 
+        # Get rid of not relevant properties
+        for key in list(properties_to_update.keys()):
+            if key not in courier:
+                del properties_to_update[key]
+
         courier.update(properties_to_update)
         db.update_courier(courier)
 
-        if courier['rating'] == 0:
-            del courier['rating']
-
-        if courier['earnings'] == 0:
-            del courier['earnings']
+        del courier['rating'], courier['earnings']
 
         orders = db.get_courier_orders(courier)
         for order in orders:
