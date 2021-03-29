@@ -25,3 +25,9 @@ Test
 ```
 make run-test
 ```
+
+## Running all test
+Just write
+```
+make test
+```
