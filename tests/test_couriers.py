@@ -60,3 +60,37 @@ def test_validation_error(client):
     json_data = rv.get_json()
     assert len(json_data['validation_error']) > 0
     assert json_data['validation_error']['couriers'][0]['id'] == 1
+
+
+def test_patch_courier(client):
+    """Courier's change"""
+
+    body = {
+        'data': [
+            {
+                'courier_id': 1,
+                'courier_type': 'foot',
+                'regions': [1, 12, 22],
+                'working_hours': ["11:35-14:05", "09:00-11:00"],
+            }
+        ]
+    }
+
+    rv = client.post('/couriers',
+                     json=body)
+
+    body = {
+        'courier_type': 'car',
+        'regions': [666],
+        'working_hours': ["10:00-15:00"],
+        'courier_id': 666,
+    }
+
+    rv = client.patch('/couriers/1',
+                      json=body)
+
+    json_data = rv.get_json()
+    assert json_data['courier_type'] == 'car'
+    assert json_data['regions'] == [666]
+    assert json_data['working_hours'] == ["10:00-15:00"]
+
