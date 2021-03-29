@@ -1,5 +1,5 @@
-## Linter status
-[![linter](https://github.com/kiselz/candy-delivery-app/actions/workflows/flake8.yml/badge.svg)](https://github.com/kiselz/candy-delivery-app/actions/workflows/flake8.yml)
+## Linter and tests status
+[![linter](https://github.com/kiselz/candy-delivery-app/actions/workflows/flake8.yml/badge.svg)](https://github.com/kiselz/candy-delivery-app/actions/workflows/flake8.yml) [![tests](https://github.com/kiselz/candy-delivery-app/actions/workflows/tests.yml/badge.svg)](https://github.com/kiselz/candy-delivery-app/actions/workflows/tests.yml)
 
 ## Candy delivery app
 REST service written on Flask for "Yandex Backend School"
@@ -20,10 +20,6 @@ make run-dev
 Production
 ```
 make run-prod
-```
-Test
-```
-make run-test
 ```
 
 ## Running all test
