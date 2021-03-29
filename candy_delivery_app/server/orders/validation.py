@@ -57,8 +57,8 @@ def are_delivery_hours_valid(order):
                 # Not in the format HH:MM
                 return False
 
-            if int(hour) >= 24 or int(hour) < 0:
+            if int(hour) > 23 or int(hour) < 0:
                 return False
-            if int(minute) >= 59 or int(minute) < 0:
+            if int(minute) > 59 or int(minute) < 0:
                 return False
     return True
